@@ -1,0 +1,112 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+string coder(char* input, int len);
+string decoder(char* input, int len);
+
+string alfabet = "&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz";
+
+int main()
+{
+	string a, k;
+	cout << "Input file way: ";
+	cin >> a;
+	ifstream file(a, ios::binary);
+	cout << "Input save file way: ";
+	cin >> k;
+	ofstream file1(k, ios::binary);
+	file.seekg(0, file.end);
+	int l = file.tellg();
+	file.seekg(0, file.beg);
+	char* str = new char[l + 1];
+	file.read(str, l);
+	int vote;
+	cout  << "Inpute mode (1 means code 2 means decode) ";
+	cin >> vote;
+	if (vote == 1)
+	{
+		string b, c;
+		c = coder(str, l);
+		file1 << c;
+	}
+	if (vote == 2)
+	{
+		string c, b;
+		c = decoder(str, l);
+		file1 << c;
+	}
+	return 0;
+}
+
+string coder(char* input, int len)
+{
+	string output("");
+	int a = len, b = a * 8 / 6;
+	if (a * 8 % 6 != 0)
+		b++;
+	unsigned char *q;
+	bool *buff;
+	int j = 0;
+	buff = new bool[a * 8];
+	q = new unsigned char[b];
+	for (int i = 1; i < a + 1; i++)
+	{
+		for (int k = 1; k < 9; k++)
+		{
+			buff[j] = (input[i - 1] >> (k - 1)) & 1;
+			j++;
+		}
+	}
+	int num = 0;
+	cout << endl;
+	for (int l = 0; l < b; l++)
+	{
+		q[l] = 0;
+		for (int i = 0; i < 6; i++)
+		{
+			if (buff[num] == 1)
+				q[l] = q[l] | (1 << i);
+			num++;
+		}
+		output += alfabet[(unsigned int)q[l]];
+	}
+	return output;
+}
+string decoder(char* input, int len)
+{
+	string output("");
+	int a = len, b = a * 6 / 8;
+	if (a * 6 % 8 != 0)
+		b++;
+	unsigned char *q;
+	bool *buff;
+	int j = 0;
+	buff = new bool[a * 6];
+	q = new unsigned char[b];
+	for (int i = 1; i < a + 1; i++)
+	{
+		for (int k = 1; k < 7; k++)
+		{
+			for (int l = 0; l < 85; l++)
+				if (input[i - 1] == alfabet[l])
+					buff[j] = (l >> (k - 1)) & 1;
+			j++;
+		}
+	}
+	int num = 0;
+	for (int l = 0; l < b; l++)
+	{
+		q[l] = 0;
+		for (int i = 0; i < 8; i++)
+		{
+			if (buff[num] == 1)
+				q[l] = q[l] | (1 << i);
+			num++;
+		}
+		output += q[l];
+	}
+	return output;
+}

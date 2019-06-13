@@ -1,47 +1,17 @@
+#pragma once
+#include <string>
 #include <iostream>
 #include <fstream>
-#include <string>
-
 using namespace std;
-
-string coder(char* input, int len);
-string decoder(char* input, int len);
-
-string alfabet = "&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz";
-
-int main()
+class Base85
 {
-	string a, k;
-	cout << "Input file way: ";
-	cin >> a;
-	ifstream file(a, ios::binary);
-	cout << "Input save file way: ";
-	cin >> k;
-	ofstream file1(k, ios::binary);
-	file.seekg(0, file.end);
-	int l = file.tellg();
-	file.seekg(0, file.beg);
-	char* str = new char[l + 1];
-	file.read(str, l);
-	int vote;
-	cout  << "Inpute mode (1 means code 2 means decode) ";
-	cin >> vote;
-	if (vote == 1)
-	{
-		string b, c;
-		c = coder(str, l);
-		file1 << c;
-	}
-	if (vote == 2)
-	{
-		string c, b;
-		c = decoder(str, l);
-		file1 << c;
-	}
-	return 0;
-}
-
-string coder(char* input, int len)
+private:
+	string alfabet = "&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz";
+public:
+	string coder(char* input, int len);
+	string decoder(char* input, int len);
+};
+string Base85::coder(char* input, int len)
 {
 	string output("");
 	int a = len, b = a * 8 / 6;
@@ -75,7 +45,7 @@ string coder(char* input, int len)
 	}
 	return output;
 }
-string decoder(char* input, int len)
+string Base85::decoder(char* input, int len)
 {
 	string output("");
 	int a = len, b = a * 6 / 8;
@@ -109,4 +79,67 @@ string decoder(char* input, int len)
 		output += q[l];
 	}
 	return output;
+}
+int main()
+{
+	setlocale(LC_ALL, ".1251");
+	string a, k;
+	try
+	{
+		cout << "Input file way" << endl;
+		cin >> a;
+		ifstream file(a, ios::binary);
+		if (!file)
+			throw 'f';
+		cout << "Input save file way" << endl;
+		cin >> k;
+		ofstream file1(k, ios::binary);
+		if (!file1)
+			throw 'f';
+		file.seekg(0, file.end);
+		int l = file.tellg();
+		file.seekg(0, file.beg);
+		char* str = new char[l + 1];
+		file.read(str, l);
+		int vote;
+		cout << "Inpute mode\n1.Code\n2.Decode" << endl;
+		cin >> vote;
+		if (vote != 1 && vote != 2)
+			throw 'm';
+		if (vote == 1)
+		{
+			string c;
+			Base85 q;
+			c = q.coder(str, l);
+			file1 << c;
+		}
+		if (vote == 2)
+		{
+			string c;
+			Base85 l1;
+			c = l1.decoder(str, l);
+			file1 << c;
+		}
+	}
+	catch (char e)
+	{
+		switch (e)
+		{
+		case 'm':
+			{
+				cout << "Wrong mode" << endl;
+				break;
+			}
+		case 'f':
+		{
+			cout << "Can't open file" << endl;
+			break;
+		}
+		case 'i':
+		{
+			cout << "Wrong string" << endl;
+			break;
+		}
+		}
+	}
 }
